@@ -26,6 +26,6 @@ namespace tibrudna.djcort.src.Modules
         }
 
         [Command("add")]
-        public async Task AddToPlaylist(string url) => await playerService.AddToPlaylist(url);
+        public async Task AddToPlaylist(string url) => await playerService.AddToPlaylist(Context, url);
     }
 }

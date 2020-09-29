@@ -19,7 +19,11 @@ namespace tibrudna.djcort.src.Services
             playlist = new Queue<string>();
         }
 
-        public async Task AddToPlaylist(string url) => playlist.Enqueue(url);
+        public async Task AddToPlaylist(SocketCommandContext context, string url)
+        {
+            playlist.Enqueue(url);
+            await context.Channel.SendMessageAsync("Song added");
+        }
 
         public async Task JoinChannel(SocketCommandContext context)
         {
