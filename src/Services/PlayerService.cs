@@ -12,17 +12,22 @@ namespace tibrudna.djcort.src.Services
     public class PlayerService
     {
         private readonly Queue<string> playlist;
+        private readonly Queue<string> tempFiles;
         private IAudioClient audioClient;
+        private Task loadStatus;
 
         public PlayerService()
         {
             playlist = new Queue<string>();
+            tempFiles = new Queue<string>();
+            loadStatus = Task.CompletedTask;
         }
 
         public async Task AddToPlaylist(SocketCommandContext context, string url)
         {
             playlist.Enqueue(url);
             await context.Channel.SendMessageAsync("Song added");
+            if (playlist.Count < 2) loadStatus = LoadSong();
         }
 
         public async Task JoinChannel(SocketCommandContext context)
@@ -36,14 +41,23 @@ namespace tibrudna.djcort.src.Services
             audioClient = await channel.ConnectAsync();
         }
 
+        private async Task LoadSong()
+        {
+            var tempFile = Path.GetTempFileName();
+            var youtube = YouTube.Default;
+            if (playlist.Count < 1) return;
+
+            var video = await youtube.GetVideoAsync(playlist.Dequeue());
+            await File.WriteAllBytesAsync(tempFile, await video.GetBytesAsync());
+            tempFiles.Enqueue(tempFile);
+        }
+
         public async Task StartPlaying()
         {
-            var youtube = YouTube.Default;
-            while(playlist.Count > 0) {
-                var video = await youtube.GetVideoAsync(playlist.Dequeue());
-                var tempFile = Path.GetTempFileName();
-                await File.WriteAllBytesAsync(tempFile, await video.GetBytesAsync());
-
+            await loadStatus;
+            while(tempFiles.Count > 0) {
+                loadStatus = LoadSong();
+                var tempFile = tempFiles.Dequeue();
                 using (var ffmpeg = CreateStream(tempFile))
                 using (var output = ffmpeg.StandardOutput.BaseStream)
                 using (var discord = audioClient.CreatePCMStream(AudioApplication.Mixed))
@@ -51,6 +65,8 @@ namespace tibrudna.djcort.src.Services
                     try { await output.CopyToAsync(discord); }
                     finally { await discord.FlushAsync(); }
                 }
+                File.Delete(tempFile);
+                await loadStatus;
             }
         }
 
