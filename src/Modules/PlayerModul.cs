@@ -19,13 +19,16 @@ namespace tibrudna.djcort.src.Modules
         [Command("join", RunMode = RunMode.Async)]
         public async Task JoinChannel(IVoiceChannel channel = null) => await playerService.JoinChannel(Context);
 
-        [Command("play", RunMode = RunMode.Async)]
+        [Command("play")]
         public async Task StartPlaying()
         {
-            await playerService.StartPlaying();
+            playerService.StartPlaying();
         }
 
         [Command("add")]
         public async Task AddToPlaylist(string url) => await playerService.AddToPlaylist(Context, url);
+
+        [Command("next")]
+        public async Task NextSong() => await playerService.NextSong();
     }
 }

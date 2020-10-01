@@ -15,12 +15,19 @@ namespace tibrudna.djcort.src.Services
         private readonly Queue<string> tempFiles;
         private IAudioClient audioClient;
         private Task loadStatus;
+        private bool nextSong;
 
         public PlayerService()
         {
             playlist = new Queue<string>();
             tempFiles = new Queue<string>();
             loadStatus = Task.CompletedTask;
+            nextSong = false;
+        }
+
+        public async Task NextSong()
+        {
+            nextSong = true;
         }
 
         public async Task AddToPlaylist(SocketCommandContext context, string url)
@@ -43,10 +50,10 @@ namespace tibrudna.djcort.src.Services
 
         private async Task LoadSong()
         {
-            var tempFile = Path.GetTempFileName();
-            var youtube = YouTube.Default;
             if (playlist.Count < 1) return;
 
+            var tempFile = Path.GetTempFileName();
+            var youtube = YouTube.Default;
             var video = await youtube.GetVideoAsync(playlist.Dequeue());
             await File.WriteAllBytesAsync(tempFile, await video.GetBytesAsync());
             tempFiles.Enqueue(tempFile);
@@ -56,17 +63,26 @@ namespace tibrudna.djcort.src.Services
         {
             await loadStatus;
             while(tempFiles.Count > 0) {
+                nextSong = false;
                 loadStatus = LoadSong();
                 var tempFile = tempFiles.Dequeue();
+                var buffer = new byte[2048];
                 using (var ffmpeg = CreateStream(tempFile))
                 using (var output = ffmpeg.StandardOutput.BaseStream)
                 using (var discord = audioClient.CreatePCMStream(AudioApplication.Mixed))
                 {
-                    try { await output.CopyToAsync(discord); }
+                    try {
+                        int read = -1;
+                        while((read = await output.ReadAsync(buffer, 0, buffer.Length)) > 0 && !nextSong)
+                        {
+                            discord.Write(buffer, 0, buffer.Length);
+                        }
+                    }
                     finally { await discord.FlushAsync(); }
                 }
                 File.Delete(tempFile);
                 await loadStatus;
+                
             }
         }
 
