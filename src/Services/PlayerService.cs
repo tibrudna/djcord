@@ -63,11 +63,14 @@ namespace tibrudna.djcort.src.Services
                         int read = -1;
                         while((read = await output.ReadAsync(buffer, 0, buffer.Length)) > 0)
                         {
+                            if (nextSong) continue;
                             await discord.WriteAsync(buffer, 0, buffer.Length);
                         }
                     }
-                    finally {
+                    finally
+                    {
                         await discord.FlushAsync();
+                        nextSong = false;
                     }
                 }
             }
