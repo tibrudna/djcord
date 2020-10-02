@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using tibrudna.djcort.src.Exceptions;
 using tibrudna.djcort.src.Services;
 
 namespace tibrudna.djcort.src.Modules
@@ -15,20 +16,34 @@ namespace tibrudna.djcort.src.Modules
             this.playerService = playerService;
         }
 
-
         [Command("join", RunMode = RunMode.Async)]
-        public async Task JoinChannel(IVoiceChannel channel = null) => await playerService.JoinChannel(Context);
-
-        [Command("play")]
-        public async Task StartPlaying()
+        public async Task JoinChannel(IVoiceChannel channel = null)
         {
-            playerService.StartPlaying();
+            try
+            {
+                await playerService.JoinChannel(Context.User);
+            }
+            catch (UserNotInVoiceChannelException exception)
+            {
+                
+                await Context.Channel.SendMessageAsync(exception.Message);
+            }
         }
 
         [Command("add")]
-        public async Task AddToPlaylist(string url) => await playerService.AddToPlaylist(Context, url);
+        public async Task AddToPlaylist(string url)
+        {
+            await playerService.AddToPlaylist(url);
+            await Context.Channel.SendMessageAsync("Song was added");
+        }
 
         [Command("next")]
         public async Task NextSong() => await playerService.NextSong();
+
+        [Command("play", RunMode = RunMode.Async)]
+        public async Task StartPlaying()
+        {
+            await playerService.StartPlaying();
+        }
     }
 }

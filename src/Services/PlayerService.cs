@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Audio;
 using Discord.Commands;
+using Discord.WebSocket;
+using tibrudna.djcort.src.Exceptions;
 using VideoLibrary;
 
 namespace tibrudna.djcort.src.Services
@@ -25,26 +27,24 @@ namespace tibrudna.djcort.src.Services
             nextSong = false;
         }
 
-        public async Task NextSong()
+        public async Task JoinChannel(SocketUser user)
         {
-            nextSong = true;
-        }
-
-        public async Task AddToPlaylist(SocketCommandContext context, string url)
-        {
-            playlist.Enqueue(url);
-            await context.Channel.SendMessageAsync("Song added");
-        }
-
-        public async Task JoinChannel(SocketCommandContext context)
-        {
-            var channel = (context.User as IGuildUser)?.VoiceChannel;
-            if (channel == null) {
-                await context.Channel.SendMessageAsync("User must be in a voice channel");
-                return;
-            }
+            var channel = (user as IGuildUser)?.VoiceChannel;
+            if (channel == null) throw new UserNotInVoiceChannelException("The user is in no voice channel");
 
             audioClient = await channel.ConnectAsync();
+        }
+
+        public Task AddToPlaylist(string url)
+        {
+            playlist.Enqueue(url);
+            return Task.CompletedTask;
+        }
+
+        public Task NextSong()
+        {
+            nextSong = true;
+            return Task.CompletedTask;
         }
 
         public async Task StartPlaying()
