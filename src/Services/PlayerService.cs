@@ -12,11 +12,22 @@ namespace tibrudna.djcort.src.Services
     public class PlayerService
     {
         private readonly Queue<string> playlist;
+        private readonly Queue<string> tempFiles;
         private IAudioClient audioClient;
+        private Task loadStatus;
+        private bool nextSong;
 
         public PlayerService()
         {
             playlist = new Queue<string>();
+            tempFiles = new Queue<string>();
+            loadStatus = Task.CompletedTask;
+            nextSong = false;
+        }
+
+        public async Task NextSong()
+        {
+            nextSong = true;
         }
 
         public async Task AddToPlaylist(SocketCommandContext context, string url)
@@ -39,17 +50,27 @@ namespace tibrudna.djcort.src.Services
         public async Task StartPlaying()
         {
             var youtube = YouTube.Default;
-            while(playlist.Count > 0) {
+            byte[] buffer = new byte[1024];
+            while(playlist.Count > 0)
+            {
                 var video = await youtube.GetVideoAsync(playlist.Dequeue());
-                var tempFile = Path.GetTempFileName();
-                await File.WriteAllBytesAsync(tempFile, await video.GetBytesAsync());
-
-                using (var ffmpeg = CreateStream(tempFile))
+                using (var ffmpeg = CreateStream(await video.GetUriAsync()))
                 using (var output = ffmpeg.StandardOutput.BaseStream)
                 using (var discord = audioClient.CreatePCMStream(AudioApplication.Mixed))
                 {
-                    try { await output.CopyToAsync(discord); }
-                    finally { await discord.FlushAsync(); }
+                    try
+                    {
+                        int read = -1;
+                        while((read = await output.ReadAsync(buffer, 0, buffer.Length)) > 0 && !nextSong)
+                        {
+                            await discord.WriteAsync(buffer, 0, buffer.Length);
+                        }
+                    }
+                    finally
+                    {
+                        await discord.FlushAsync();
+                        nextSong = false;
+                    }
                 }
             }
         }
