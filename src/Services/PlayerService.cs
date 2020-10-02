@@ -61,9 +61,8 @@ namespace tibrudna.djcort.src.Services
                     try
                     {
                         int read = -1;
-                        while((read = await output.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                        while((read = await output.ReadAsync(buffer, 0, buffer.Length)) > 0 && !nextSong)
                         {
-                            if (nextSong) continue;
                             await discord.WriteAsync(buffer, 0, buffer.Length);
                         }
                     }
