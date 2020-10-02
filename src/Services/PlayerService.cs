@@ -35,14 +35,16 @@ namespace tibrudna.djcort.src.Services
             audioClient = await channel.ConnectAsync();
         }
 
-        public async Task NextSong()
-        {
-            nextSong = true;
-        }
-
-        public void AddToPlaylist(string url)
+        public Task AddToPlaylist(string url)
         {
             playlist.Enqueue(url);
+            return Task.CompletedTask;
+        }
+
+        public Task NextSong()
+        {
+            nextSong = true;
+            return Task.CompletedTask;
         }
 
         public async Task StartPlaying()
