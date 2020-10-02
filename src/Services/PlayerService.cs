@@ -40,10 +40,9 @@ namespace tibrudna.djcort.src.Services
             nextSong = true;
         }
 
-        public async Task AddToPlaylist(SocketCommandContext context, string url)
+        public void AddToPlaylist(string url)
         {
             playlist.Enqueue(url);
-            await context.Channel.SendMessageAsync("Song added");
         }
 
         public async Task StartPlaying()

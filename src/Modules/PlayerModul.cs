@@ -16,6 +16,12 @@ namespace tibrudna.djcort.src.Modules
             this.playerService = playerService;
         }
 
+        [Command("add")]
+        public async Task AddToPlaylist(string url)
+        {
+            playerService.AddToPlaylist(url);
+            await Context.Channel.SendMessageAsync("Song was added");
+        }
 
         [Command("join", RunMode = RunMode.Async)]
         public async Task JoinChannel(IVoiceChannel channel = null)
@@ -37,8 +43,6 @@ namespace tibrudna.djcort.src.Modules
             playerService.StartPlaying();
         }
 
-        [Command("add")]
-        public async Task AddToPlaylist(string url) => await playerService.AddToPlaylist(Context, url);
 
         [Command("next")]
         public async Task NextSong() => await playerService.NextSong();
