@@ -14,16 +14,13 @@ namespace tibrudna.djcort.src.Services
     public class PlayerService
     {
         private readonly Queue<string> playlist;
-        private readonly Queue<string> tempFiles;
         private IAudioClient audioClient;
-        private Task loadStatus;
+        private Video currentVideo;
         private bool nextSong;
 
         public PlayerService()
         {
             playlist = new Queue<string>();
-            tempFiles = new Queue<string>();
-            loadStatus = Task.CompletedTask;
             nextSong = false;
         }
 
@@ -35,16 +32,15 @@ namespace tibrudna.djcort.src.Services
             audioClient = await channel.ConnectAsync();
         }
 
-        public Task AddToPlaylist(string url)
+        public void AddToPlaylist(string url)
         {
             playlist.Enqueue(url);
-            return Task.CompletedTask;
+            //return Task.CompletedTask;
         }
 
-        public Task NextSong()
+        public void NextSong()
         {
             nextSong = true;
-            return Task.CompletedTask;
         }
 
         public async Task StartPlaying()
@@ -53,8 +49,8 @@ namespace tibrudna.djcort.src.Services
             byte[] buffer = new byte[1024];
             while(playlist.Count > 0)
             {
-                var video = await youtube.GetVideoAsync(playlist.Dequeue());
-                using (var ffmpeg = CreateStream(await video.GetUriAsync()))
+                currentVideo = await youtube.GetVideoAsync(playlist.Dequeue());
+                using (var ffmpeg = CreateStream(await currentVideo.GetUriAsync()))
                 using (var output = ffmpeg.StandardOutput.BaseStream)
                 using (var discord = audioClient.CreatePCMStream(AudioApplication.Mixed))
                 {
@@ -85,5 +81,27 @@ namespace tibrudna.djcort.src.Services
                 RedirectStandardOutput = true,
             });
         }
+
+        public Embed NowPlaying()
+        {
+            var builder = new EmbedBuilder();
+            var songParts = TitleParser(currentVideo.Title);
+            return builder.WithColor(Color.Blue)
+                        .WithTitle(songParts[1])
+                        .WithDescription($"by {songParts[0]}")
+                        .Build();
+        }
+
+        private string[] TitleParser(string title)
+        {
+            var parts = title.Split('-', 2);
+            for (int i = 0; i < parts.Length; i++)
+            {
+                parts[i] = parts[i].Trim();
+            }
+
+            return parts;
+        }
+
     }
 }

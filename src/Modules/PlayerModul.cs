@@ -33,17 +33,27 @@ namespace tibrudna.djcort.src.Modules
         [Command("add")]
         public async Task AddToPlaylist(string url)
         {
-            await playerService.AddToPlaylist(url);
+            playerService.AddToPlaylist(url);
             await Context.Channel.SendMessageAsync("Song was added");
         }
 
         [Command("next")]
-        public async Task NextSong() => await playerService.NextSong();
+        public async Task NextSong()
+        {
+            playerService.NextSong();
+            await Task.CompletedTask;
+        }
 
         [Command("play", RunMode = RunMode.Async)]
         public async Task StartPlaying()
         {
             await playerService.StartPlaying();
+        }
+
+        [Command("now")]
+        public async Task NowPlaying()
+        {
+            await Context.Channel.SendMessageAsync(embed: playerService.NowPlaying());
         }
     }
 }
