@@ -7,6 +7,7 @@ using Discord.Audio;
 using Discord.Commands;
 using Discord.WebSocket;
 using tibrudna.djcort.src.Exceptions;
+using tibrudna.djcort.src.Models;
 using VideoLibrary;
 
 namespace tibrudna.djcort.src.Services
@@ -15,7 +16,7 @@ namespace tibrudna.djcort.src.Services
     {
         private readonly Queue<string> playlist;
         private IAudioClient audioClient;
-        private Video currentVideo;
+        private Song currentSong;
         private bool nextSong;
 
         public PlayerService()
@@ -35,7 +36,6 @@ namespace tibrudna.djcort.src.Services
         public void AddToPlaylist(string url)
         {
             playlist.Enqueue(url);
-            //return Task.CompletedTask;
         }
 
         public void NextSong()
@@ -49,8 +49,9 @@ namespace tibrudna.djcort.src.Services
             byte[] buffer = new byte[1024];
             while(playlist.Count > 0)
             {
-                currentVideo = await youtube.GetVideoAsync(playlist.Dequeue());
-                using (var ffmpeg = CreateStream(await currentVideo.GetUriAsync()))
+                var currentUrl = playlist.Dequeue();
+                currentSong = new Song(currentUrl, await youtube.GetVideoAsync(currentUrl));
+                using (var ffmpeg = CreateStream(await currentSong.Video.GetUriAsync()))
                 using (var output = ffmpeg.StandardOutput.BaseStream)
                 using (var discord = audioClient.CreatePCMStream(AudioApplication.Mixed))
                 {
@@ -85,10 +86,12 @@ namespace tibrudna.djcort.src.Services
         public Embed NowPlaying()
         {
             var builder = new EmbedBuilder();
-            var songParts = TitleParser(currentVideo.Title);
+            var songParts = TitleParser(currentSong.Video.Title);
             return builder.WithColor(Color.Blue)
-                        .WithTitle(songParts[1])
-                        .WithDescription($"by {songParts[0]}")
+                        .WithTitle(currentSong.Title)
+                        .WithDescription($"by {currentSong.Artist}")
+                        .WithUrl(currentSong.Url)
+                        .WithThumbnailUrl(currentSong.ThumbnailUrl)
                         .Build();
         }
 
