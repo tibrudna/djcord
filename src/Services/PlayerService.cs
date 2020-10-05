@@ -18,11 +18,13 @@ namespace tibrudna.djcort.src.Services
         private IAudioClient audioClient;
         private Song currentSong;
         private bool nextSong;
+        private Task playStatus;
 
         public PlayerService()
         {
             playlist = new Queue<string>();
             nextSong = false;
+            playStatus = Task.CompletedTask;
         }
 
         public async Task JoinChannel(SocketUser user)
@@ -36,6 +38,10 @@ namespace tibrudna.djcort.src.Services
         public void AddToPlaylist(string url)
         {
             playlist.Enqueue(url);
+
+            if (!playStatus.IsCompleted) return;
+
+            playStatus = StartPlaying();
         }
 
         public void NextSong()

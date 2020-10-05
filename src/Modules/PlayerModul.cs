@@ -44,12 +44,6 @@ namespace tibrudna.djcort.src.Modules
             await Task.CompletedTask;
         }
 
-        [Command("play", RunMode = RunMode.Async)]
-        public async Task StartPlaying()
-        {
-            await playerService.StartPlaying();
-        }
-
         [Command("now")]
         public async Task NowPlaying()
         {
