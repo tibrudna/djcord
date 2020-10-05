@@ -86,24 +86,12 @@ namespace tibrudna.djcort.src.Services
         public Embed NowPlaying()
         {
             var builder = new EmbedBuilder();
-            var songParts = TitleParser(currentSong.Video.Title);
             return builder.WithColor(Color.Blue)
                         .WithTitle(currentSong.Title)
                         .WithDescription($"by {currentSong.Artist}")
                         .WithUrl(currentSong.Url)
                         .WithThumbnailUrl(currentSong.ThumbnailUrl)
                         .Build();
-        }
-
-        private string[] TitleParser(string title)
-        {
-            var parts = title.Split('-', 2);
-            for (int i = 0; i < parts.Length; i++)
-            {
-                parts[i] = parts[i].Trim();
-            }
-
-            return parts;
         }
 
     }
