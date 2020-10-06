@@ -14,7 +14,7 @@ namespace tibrudna.djcort.src.Services
 {
     public class PlayerService
     {
-        private readonly Queue<string> playlist;
+        private readonly Queue<Song> playlist;
         private IAudioClient audioClient;
         private Song currentSong;
         private bool nextSong;
@@ -22,7 +22,7 @@ namespace tibrudna.djcort.src.Services
 
         public PlayerService()
         {
-            playlist = new Queue<string>();
+            playlist = new Queue<Song>();
             nextSong = false;
             playStatus = Task.CompletedTask;
         }
@@ -35,12 +35,14 @@ namespace tibrudna.djcort.src.Services
             audioClient = await channel.ConnectAsync();
         }
 
-        public void AddToPlaylist(string url)
+        public async Task AddToPlaylist(string url)
         {
-            playlist.Enqueue(url);
+            var youtube = YouTube.Default;
+            var video = await youtube.GetVideoAsync(url);
+
+            playlist.Enqueue(Song.NewSong(url, video));
 
             if (!playStatus.IsCompleted) return;
-
             playStatus = StartPlaying();
         }
 
@@ -51,13 +53,11 @@ namespace tibrudna.djcort.src.Services
 
         public async Task StartPlaying()
         {
-            var youtube = YouTube.Default;
             byte[] buffer = new byte[1024];
             while(playlist.Count > 0)
             {
-                var currentUrl = playlist.Dequeue();
-                currentSong = new Song(currentUrl, await youtube.GetVideoAsync(currentUrl));
-                using (var ffmpeg = CreateStream(await currentSong.Video.GetUriAsync()))
+                currentSong = playlist.Dequeue();
+                using (var ffmpeg = CreateStream(currentSong.StreamUrl))
                 using (var output = ffmpeg.StandardOutput.BaseStream)
                 using (var discord = audioClient.CreatePCMStream(AudioApplication.Mixed))
                 {

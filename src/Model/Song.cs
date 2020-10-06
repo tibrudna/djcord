@@ -5,33 +5,35 @@ namespace tibrudna.djcort.src.Models
 {
     public class Song
     {
-        public string Url { get; }
-        public Video Video { get; }
+        public string ID { get; private set; }
+        public string Url { get; private set; }
+        public string StreamUrl { get; private set; }
         public string Title { get; private set; }
         public string Artist { get; private set; }
-        public string ThumbnailUrl { get; private set; }
+        public string ThumbnailUrl { get { return $"https://img.youtube.com/vi/{ID}/hqdefault.jpg"; } }
 
-        public Song(string Url, Video video)
+        private Song(string ID, string Url, string StreamUrl, string Title, string Artist)
         {
+            this.ID = ID;
             this.Url = Url;
-            this.Video = video;
-            TitleParser();
-            ThumbnailParser();
+            this.StreamUrl = StreamUrl;
+            this.Title = Title;
+            this.Artist = Artist;
         }
 
-        private void TitleParser()
+        public static Song NewSong(string url, Video video)
         {
-            var parts = this.Video.Title.Split('-', 2);
-            this.Artist = parts[0].Trim();
-            this.Title = parts[1].Trim();
+            //Gets Artist and Title
+            var parts = video.Title.Split('-', 2);
+            
+            return new Song(ParseId(url), url, video.Uri, parts[1], parts[0]);
         }
 
-        private void ThumbnailParser()
+        public static string ParseId(string url)
         {
             var pattern = "v=\\w*";
-            var match = Regex.Match(Url, pattern);
-            var id = match.Value.Remove(0, 2);
-            this.ThumbnailUrl = $"https://img.youtube.com/vi/{id}/hqdefault.jpg";
+            var match = Regex.Match(url, pattern);
+            return match.Value.Remove(0, 2);
         }
     }
 }
