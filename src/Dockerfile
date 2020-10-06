@@ -8,4 +8,6 @@ WORKDIR /app
 COPY --from=build /src/bin/Release/netcoreapp3.1/publish .
 RUN ["apk", "update"]
 RUN ["apk", "add", "ffmpeg", "libsodium", "libsodium-dev", "opus", "opus-dev"]
+ENV TOKEN="TOKEN"
+ENV PREFIX="!"
 ENTRYPOINT [ "./src" ]

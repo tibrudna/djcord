@@ -11,13 +11,14 @@ namespace tibrudna.djcort.src.Handlers
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
         private readonly IServiceProvider provider;
+        private readonly string prefix;
 
         public CommandHandler(DiscordSocketClient client, CommandService commands, IServiceProvider provider)
         {
             this._client = client;
             this._commands = commands;
             this.provider = provider;
-
+            prefix = Environment.GetEnvironmentVariable("PREFIX");
         }
 
         public async Task InstallCommandAsync()
@@ -33,7 +34,7 @@ namespace tibrudna.djcort.src.Handlers
 
             int argPos = 0;
 
-            if (!message.HasCharPrefix('!', ref argPos)) return;
+            if (!message.HasStringPrefix(prefix, ref argPos)) return;
 
             var context = new SocketCommandContext(_client, message);
 

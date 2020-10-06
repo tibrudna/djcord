@@ -33,7 +33,7 @@ namespace tibrudna.djcort.src
 
             client.Log += Log;
 
-            await client.LoginAsync(TokenType.Bot, "TOKEN");
+            await client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("TOKEN"));
             await client.StartAsync();
 
             await Task.Delay(-1);
