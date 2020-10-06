@@ -22,6 +22,7 @@ namespace tibrudna.djcort.src
         public async Task MainAsync()
         {
             Console.CancelKeyPress += new ConsoleCancelEventHandler(beforeExit);
+            AppDomain.CurrentDomain.ProcessExit += (sender, args) => this.beforeExit(sender, args);
 
             provider = BuildServiceProvider();
             client = provider.GetService<DiscordSocketClient>();
@@ -44,7 +45,7 @@ namespace tibrudna.djcort.src
             return Task.CompletedTask;
         }
 
-        private async void beforeExit(object sender, ConsoleCancelEventArgs args)
+        private async void beforeExit(object sender, EventArgs args)
         {
             await client.StopAsync();
             await client.LogoutAsync();
