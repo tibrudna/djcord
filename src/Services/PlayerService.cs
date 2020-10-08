@@ -8,6 +8,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using tibrudna.djcort.src.Exceptions;
 using tibrudna.djcort.src.Models;
+using tibrudna.djcort.src.Factories;
 using VideoLibrary;
 
 namespace tibrudna.djcort.src.Services
@@ -37,10 +38,8 @@ namespace tibrudna.djcort.src.Services
 
         public async Task AddToPlaylist(string url)
         {
-            var youtube = YouTube.Default;
-            var video = await youtube.GetVideoAsync(url);
-
-            playlist.Enqueue(Song.NewSong(url, video));
+            var song = await SongFactory.CreateNewSong(url);
+            playlist.Enqueue(song);
 
             if (!playStatus.IsCompleted) return;
             playStatus = StartPlaying();
