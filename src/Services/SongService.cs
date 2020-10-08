@@ -18,14 +18,14 @@ namespace tibrudna.djcort.src.Services
 
         public async Task Add(Song song)
         {
-            if (await FindById(song.ID) != null) return;
-            await this.database.AddAsync(song);
-            await this.database.SaveChangesAsync();
+            if (database.songs.Any<Song>(s => s.ID.Equals(song.ID))) return;
+            await database.songs.AddAsync(song);
+            await database.SaveChangesAsync();
         }
 
         public async Task<Song> FindById(string id)
         {
-            return await this.database.FindAsync<Song>(id);
+            return await database.songs.SingleAsync<Song>(s => s.ID.Equals(id));
         }
 
         public async Task<Song> CreateNewSong(string url)
