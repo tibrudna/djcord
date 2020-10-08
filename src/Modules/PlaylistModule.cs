@@ -22,5 +22,12 @@ namespace tibrudna.djcort.src.Modules
             playlistService.Enqueue(song);
             await Context.Channel.SendMessageAsync("Song was added to queue.");
         }
+
+        [Command("load")]
+        public async Task LoadPlaylist()
+        {
+            await playlistService.LoadPlaylist();
+            await Context.Channel.SendMessageAsync("Playlist was loaded");
+        }
     }
 }
