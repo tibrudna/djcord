@@ -25,6 +25,7 @@ namespace tibrudna.djcort.src.Handlers
         {
             _client.MessageReceived += HandleCommandAsync;
             await _commands.AddModuleAsync<PlayerModule>(provider);
+            await _commands.AddModuleAsync<PlaylistModule>(provider);
         }
 
         public async Task HandleCommandAsync(SocketMessage messageParam)

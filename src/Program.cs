@@ -3,7 +3,10 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
+using tibrudna.djcort.src.Dao;
 using tibrudna.djcort.src.Handlers;
 using tibrudna.djcort.src.Modules;
 using tibrudna.djcort.src.Services;
@@ -56,6 +59,9 @@ namespace tibrudna.djcort.src
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandler>()
                 .AddSingleton<PlayerService>()
+                .AddSingleton<SongService>()
+                .AddSingleton<PlaylistService>()
+                .AddDbContext<DatabaseContext>()
                 .BuildServiceProvider();
     }
 }

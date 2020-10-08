@@ -8,22 +8,23 @@ using Discord.Commands;
 using Discord.WebSocket;
 using tibrudna.djcort.src.Exceptions;
 using tibrudna.djcort.src.Models;
-using tibrudna.djcort.src.Factories;
 using VideoLibrary;
+using tibrudna.djcort.src.Dao;
+using System;
 
 namespace tibrudna.djcort.src.Services
 {
     public class PlayerService
     {
-        private readonly Queue<Song> playlist;
+        private readonly PlaylistService playlist;
         private IAudioClient audioClient;
         private Song currentSong;
         private bool nextSong;
         private Task playStatus;
 
-        public PlayerService()
+        public PlayerService(PlaylistService playlist)
         {
-            playlist = new Queue<Song>();
+            this.playlist = playlist;
             nextSong = false;
             playStatus = Task.CompletedTask;
         }
@@ -36,21 +37,17 @@ namespace tibrudna.djcort.src.Services
             audioClient = await channel.ConnectAsync();
         }
 
-        public async Task AddToPlaylist(string url)
-        {
-            var song = await SongFactory.CreateNewSong(url);
-            playlist.Enqueue(song);
-
-            if (!playStatus.IsCompleted) return;
-            playStatus = StartPlaying();
-        }
-
         public void NextSong()
         {
             nextSong = true;
         }
 
-        public async Task StartPlaying()
+        public void Start()
+        {
+            playStatus = StartPlaying();
+        }
+
+        private async Task StartPlaying()
         {
             byte[] buffer = new byte[1024];
             while(playlist.Count > 0)
