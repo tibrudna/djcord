@@ -1,0 +1,20 @@
+version: "3.8"
+services:
+  database:
+    image: "postgres:latest"
+    environment: 
+      POSTGRES_PASSWORD: something
+    volumes:
+      - database-volume:/var/lib/postgresql/data
+
+  djcord:
+    depends_on: [ database ]
+    build: .
+    stdin_open: true
+    tty: true
+    env_file: .env
+    volumes:
+        - ~/.ssh:/root/.ssh
+
+volumes:
+  database-volume:
