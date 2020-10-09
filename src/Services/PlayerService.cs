@@ -17,14 +17,16 @@ namespace tibrudna.djcort.src.Services
     public class PlayerService
     {
         private readonly PlaylistService playlist;
+        private readonly SongService songService;
         private IAudioClient audioClient;
         private Song currentSong;
         private bool nextSong;
         private Task playStatus;
 
-        public PlayerService(PlaylistService playlist)
+        public PlayerService(PlaylistService playlist, SongService songService)
         {
             this.playlist = playlist;
+            this.songService = songService;
             nextSong = false;
             playStatus = Task.CompletedTask;
         }
@@ -53,7 +55,8 @@ namespace tibrudna.djcort.src.Services
             while(playlist.Count > 0)
             {
                 currentSong = playlist.Dequeue();
-                using (var ffmpeg = CreateStream(currentSong.StreamUrl))
+                var streamUrl = await songService.GetStreamUrl(currentSong);
+                using (var ffmpeg = CreateStream(streamUrl))
                 using (var output = ffmpeg.StandardOutput.BaseStream)
                 using (var discord = audioClient.CreatePCMStream(AudioApplication.Mixed))
                 {

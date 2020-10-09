@@ -28,6 +28,13 @@ namespace tibrudna.djcort.src.Services
             return await database.songs.SingleAsync<Song>(s => s.ID.Equals(id));
         }
 
+        public async Task<string> GetStreamUrl(Song song)
+        {
+            var youtube = YouTube.Default;
+            var video = await youtube.GetVideoAsync(song.Url);
+            return await video.GetUriAsync();
+        }
+
         public async Task<Song> CreateNewSong(string url)
         {
             Song song = new Song();
