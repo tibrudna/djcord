@@ -14,7 +14,7 @@ services:
     tty: true
     env_file: .env
     volumes:
-        - ~/.ssh:/root/.ssh
+        - ../:/root/djcord
 
 volumes:
   database-volume:

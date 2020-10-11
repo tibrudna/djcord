@@ -8,8 +8,6 @@ namespace tibrudna.djcort.src.Models
     {
         [Column("id")]
         public string ID { get; set; }
-        [Column("streamurl")]
-        public string StreamUrl { get; set; }
         [Column("title")]
         public string Title { get; set; }
         [Column("artist")]
@@ -18,6 +16,7 @@ namespace tibrudna.djcort.src.Models
         public string Url { get { return $"https://www.youtube.com/watch?v={ID}"; } }
         [NotMapped]
         public string ThumbnailUrl { get { return $"https://img.youtube.com/vi/{ID}/hqdefault.jpg"; } }
-
+        [NotMapped]
+        public string StreamUrl { get; set; }
     }
 }

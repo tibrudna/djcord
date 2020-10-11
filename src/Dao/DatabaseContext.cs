@@ -1,3 +1,4 @@
+using System;
 using Microsoft.EntityFrameworkCore;
 using tibrudna.djcort.src.Models;
 
@@ -8,6 +9,12 @@ namespace tibrudna.djcort.src.Dao
         public DbSet<Song> songs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseNpgsql("Host=172.18.0.3;Database=djcord;Username=postgres;Password=something");
+        {
+            var host = Environment.GetEnvironmentVariable("DB_HOST");
+            var user = Environment.GetEnvironmentVariable("DB_USER");
+            var password = Environment.GetEnvironmentVariable("DB_PASSWORD");
+            var database = Environment.GetEnvironmentVariable("DB_NAME");
+            optionsBuilder.UseNpgsql($"Host={host};Database={database};Username={user};Password={password}");
+        }
     }
 }
