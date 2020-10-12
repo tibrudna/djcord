@@ -42,9 +42,16 @@ namespace tibrudna.djcort.src.Services
             var video = await youtube.GetVideoAsync(url);
             var task = video.GetUriAsync();
 
-            var titleParts = video.Title.Split("-");
-            song.Artist = titleParts[0];
-            song.Title = titleParts[1];
+            if (video.Title.Contains('-'))
+            {
+                var titleParts = video.Title.Split("-");
+                song.Artist = titleParts[0];
+                song.Title = titleParts[1];
+            }
+            else
+            {
+                song.Title = video.Title;
+            }
 
             song.ID = ParseID(url);
             song.StreamUrl = await task;
