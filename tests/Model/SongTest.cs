@@ -5,37 +5,80 @@ namespace tibrudna.djcort.tests.Model
 {
     public class SongTest
     {
-        private readonly Song song;
-
-        public SongTest()
+        public class EqualTest
         {
-            song = new Song();
-            song.Artist = "Bob";
-            song.Title = "Bob sings";
-            song.ID = "dQw4w9WgXcQ";
+            private readonly Song song;
+            private readonly Song compareSong;
+
+            public EqualTest()
+            {
+                song = new Song { ID = "dQw4w9WgXcQ", Title = "Bob sings", Artist = "Bob" };
+                compareSong = new Song { ID = "1234", Title = "Something", Artist = "Someone" };
+            }
+
+
+            [Fact]
+            public void TestEqualsNull()
+            {
+                Assert.False(song.Equals(null));
+            }
+
+            [Fact]
+            public void TestEqualsFalseObject()
+            {
+                Assert.False(song.Equals("hello"));
+            }
+
+            [Fact]
+            public void TestEqualsDifferentSongs()
+            {
+                Assert.False(song.Equals(compareSong));
+            }
+
+            [Fact]
+            public void TestEqualSongSameID()
+            {
+                compareSong.ID = song.ID;
+                Assert.True(song.Equals(compareSong));
+            }
+
+            [Fact]
+            public void TestEqualSameSong()
+            {
+                Assert.True(song.Equals(song));
+            }
         }
 
-        [Fact]
-        public void TestEquals()
+        public class GetHashCodeTest
         {
-            Assert.False(song.Equals(null));
-            Assert.False(song.Equals("hello"));
+            private readonly Song song;
+            private readonly Song compareSong;
 
-            var song2 = new Song();
-            song2.Artist = "Bob";
-            song2.Title = "Bob sings";
-            song2.ID = "L_jWHffIx5E";
+            public GetHashCodeTest()
+            {
+                song = new Song { ID = "dQw4w9WgXcQ", Title = "Bob sings", Artist = "Bob" };
+                compareSong = new Song { ID = "1234", Title = "Something", Artist = "Someone" };
+            }
 
-            Assert.False(song.Equals(song2));
+            [Fact]
+            public void TestGetHashCodeDependsOnId()
+            {
+                Assert.Equal(song.ID.GetHashCode(), song.GetHashCode());
+            }
 
-            song2.ID = song.ID;
-            Assert.True(song.Equals(song2));
+            [Fact]
+            public void TestHahCodeDifferentObject()
+            {
+                Assert.NotEqual(song.GetHashCode(), compareSong.GetHashCode());
+            }
+
+            [Fact]
+            public void TestHashCodeSameObjectID()
+            {
+                compareSong.ID = song.ID;
+                Assert.Equal(song.GetHashCode(), compareSong.GetHashCode());
+            }
         }
 
-        [Fact]
-        public void TestGetHashCode()
-        {
-            Assert.Equal(song.ID.GetHashCode(), song.GetHashCode());
-        }
     }
 }
