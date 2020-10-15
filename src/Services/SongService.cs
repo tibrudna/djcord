@@ -66,6 +66,10 @@ namespace tibrudna.djcort.src.Services
             return database.songs.SingleOrDefault<Song>(s => s.ID.Equals(id));
         }
 
+        /// <summary>Get all Songs with the given string in the title.</summary>
+        /// <param name="title">The string to look for.</param>
+        /// <returns>A list with all the songs, that cotains the given string in the title.</returns>
+        /// <exception cref="System.ArgumentException">Thrown, when the title is null or empty.</exception>
         public List<Song> FindSongByTitle(string title)
         {
             if (title == null || title.Equals("")) throw new ArgumentException(title);
