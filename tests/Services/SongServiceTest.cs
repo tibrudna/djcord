@@ -148,6 +148,14 @@ namespace tibrudna.djcort.tests.Services
             Assert.Contains<Song>(fixture.Song2, songs);
             Assert.DoesNotContain<Song>(fixture.Song3, songs);
         }
+
+        [Fact]
+        public void TestGetAllSongs()
+        {
+            var songs = songService.GetAll();
+            Assert.Equal(fixture.Data.ToList<Song>(), songs);
+        }
+
         // TODO: Add tests for GetStreamURL
 
         // TODO: Add tests for CreateNewSong

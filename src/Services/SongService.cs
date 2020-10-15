@@ -78,6 +78,11 @@ namespace tibrudna.djcort.src.Services
                     .ToList<Song>();
         }
 
+        public List<Song> GetAll()
+        {
+            return database.songs.ToList();
+        }
+
         /// <summary>Gets the stream url for a video.</summary>
         /// <param name="song">The song for which the stream url should be received.</param>
         /// <returns>A task which returns the url for the stream.</returns>
