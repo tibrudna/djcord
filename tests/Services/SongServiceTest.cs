@@ -14,254 +14,140 @@ namespace tibrudna.djcort.tests.Services
 {
     public class SongServiceTest
     {
-        public class AddTest
+        private readonly DatabaseFixture fixture;
+        private readonly SongService songService;
+
+        public SongServiceTest()
         {
-            private Song song;
-            private IQueryable<Song> data;
-            private Mock<DbSet<Song>> mockSet;
-            private Mock<DatabaseContext> mockContext;
-            private SongService songService;
-
-            public AddTest()
-            {
-                song = new Song { ID = "1234w", Title = "Something", Artist = "Someone" };
-                data = new List<Song>
-                {
-                    song,
-                }.AsQueryable();
-
-                mockSet = new Mock<DbSet<Song>>();
-                mockSet.As<IQueryable<Song>>().SetupGet(m => m.Provider).Returns(data.Provider);
-                mockSet.As<IQueryable<Song>>().SetupGet(m => m.Expression).Returns(data.Expression);
-                mockSet.As<IQueryable<Song>>().SetupGet(m => m.ElementType).Returns(data.ElementType);
-                mockSet.As<IQueryable<Song>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-
-                mockContext = new Mock<DatabaseContext>();
-                mockContext.Object.songs = mockSet.Object;
-
-                songService = new SongService(mockContext.Object);
-            }
-
-            [Fact]
-            public void TestAddDuplicateID()
-            {
-                Assert.Throws<DuplicateSongException>(() => songService.Add(song));
-
-                mockSet.Verify(m => m.Add(song), Times.Never);
-                mockContext.Verify(m => m.SaveChanges(), Times.Never);
-            }
-
-            [Fact]
-            public void TestAddDuplicateTitleAndArtist()
-            {
-                var searchSong = new Song { ID = "qwert1", Title = "something", Artist = "someone" };
-
-                songService.Add(searchSong);
-
-                mockSet.Verify(m => m.Add(searchSong), Times.Once);
-                mockContext.Verify(m => m.SaveChanges(), Times.Once);
-            }
-
-            [Fact]
-            public void TestAddNull()
-            {
-                Assert.Throws<ArgumentException>(() => songService.Add(null));
-
-                mockSet.Verify(m => m.Add(null), Times.Never);
-                mockContext.Verify(m => m.SaveChanges(), Times.Never);
-            }
-
-            [Fact]
-            public void TestAddSongEmtpyTitle()
-            {
-                var newSong = new Song { ID="1234", Title=null, Artist="Someone"};
-                Assert.Throws<ArgumentException>(() => songService.Add(newSong));
-                mockSet.Verify(m => m.Add(null), Times.Never);
-                mockContext.Verify(m => m.SaveChanges(), Times.Never);
-
-                newSong.Title = "";
-                Assert.Throws<ArgumentException>(() => songService.Add(newSong));
-                mockSet.Verify(m => m.Add(null), Times.Never);
-                mockContext.Verify(m => m.SaveChanges(), Times.Never);
-                
-            }
-
-            [Fact]
-            public void TestAddSongEmptyID()
-            {
-                var newSong = new Song { ID=null, Title="Something", Artist="Someone"};
-                Assert.Throws<ArgumentException>(() => songService.Add(newSong));
-                mockSet.Verify(m => m.Add(null), Times.Never);
-                mockContext.Verify(m => m.SaveChanges(), Times.Never);
-
-                newSong.ID = "";
-                Assert.Throws<ArgumentException>(() => songService.Add(newSong));
-                mockSet.Verify(m => m.Add(null), Times.Never);
-                mockContext.Verify(m => m.SaveChanges(), Times.Never);
-            }
-        }
-        
-        public class ExistsTest
-        {
-            private Song song;
-            private IQueryable<Song> data;
-            private Mock<DbSet<Song>> mockSet;
-            private Mock<DatabaseContext> mockContext;
-            private SongService songService;
-
-            public ExistsTest()
-            {
-                song = new Song { ID = "1234w", Title = "Something", Artist = "Someone" };
-                data = new List<Song>
-                {
-                    song,
-                }.AsQueryable();
-
-                mockSet = new Mock<DbSet<Song>>();
-                mockSet.As<IQueryable<Song>>().SetupGet(m => m.Provider).Returns(data.Provider);
-                mockSet.As<IQueryable<Song>>().SetupGet(m => m.Expression).Returns(data.Expression);
-                mockSet.As<IQueryable<Song>>().SetupGet(m => m.ElementType).Returns(data.ElementType);
-                mockSet.As<IQueryable<Song>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-
-                mockContext = new Mock<DatabaseContext>();
-                mockContext.Object.songs = mockSet.Object;
-
-                songService = new SongService(mockContext.Object);
-            }
-
-            [Fact]
-            public void TestExistsEmptyID()
-            {
-                string newSongID = null;
-                Assert.Throws<ArgumentException>(() => songService.Exists(newSongID));
-
-                newSongID = "";
-                Assert.Throws<ArgumentException>(() => songService.Exists(newSongID));
-            }
-
-            [Fact]
-            public void TestExistsFinds()
-            {
-                Assert.True(songService.Exists(song.ID));
-            }
-
-            [Fact]
-            public void TestExistsNotFind()
-            {
-                var newSongID = "what";
-                Assert.False(songService.Exists(newSongID));
-            }
+            fixture = new DatabaseFixture();
+            songService = new SongService(fixture.MockContext.Object);
         }
 
-        public class FindByIDTest
+        [Fact]
+        public void TestAddDuplicateID()
         {
-            private Song song;
-            private IQueryable<Song> data;
-            private Mock<DbSet<Song>> mockSet;
-            private Mock<DatabaseContext> mockContext;
-            private SongService songService;
+            Assert.Throws<DuplicateSongException>(() => songService.Add(fixture.Song));
 
-            public FindByIDTest()
-            {
-                song = new Song { ID = "1234w", Title = "Something", Artist = "Someone" };
-                data = new List<Song>
-                {
-                    song,
-                }.AsQueryable();
-
-                mockSet = new Mock<DbSet<Song>>();
-                mockSet.As<IQueryable<Song>>().SetupGet(m => m.Provider).Returns(data.Provider);
-                mockSet.As<IQueryable<Song>>().SetupGet(m => m.Expression).Returns(data.Expression);
-                mockSet.As<IQueryable<Song>>().SetupGet(m => m.ElementType).Returns(data.ElementType);
-                mockSet.As<IQueryable<Song>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-
-                mockContext = new Mock<DatabaseContext>();
-                mockContext.Object.songs = mockSet.Object;
-
-                songService = new SongService(mockContext.Object);
-            }
-            
-            [Fact]
-            public void TestValidArgument()
-            {
-                Assert.Throws<ArgumentException>(() => songService.FindSongByID(null));
-                Assert.Throws<ArgumentException>(() => songService.FindSongByID(""));
-            }
-
-            [Fact]
-            public void TestNotFound()
-            {
-                var foundSong = songService.FindSongByID("8452wg");
-                Assert.Null(foundSong);
-            }
-
-            [Fact]
-            public void TestFound()
-            {
-                var foundSong = songService.FindSongByID(song.ID);
-                Assert.Equal(song, foundSong);
-            }
-
-        }
-        
-        public class FindSongByName 
-        {
-            private Song song;
-            private Song song2;
-            private Song song3;
-            private IQueryable<Song> data;
-            private Mock<DbSet<Song>> mockSet;
-            private Mock<DatabaseContext> mockContext;
-            private SongService songService;
-
-            public FindSongByName()
-            {
-                song = new Song { ID = "1234w", Title = "Something", Artist = "Someone" };
-                song2 = new Song {ID = "7345gt", Title = "Something", Artist = "Someone" };
-                song3 = new Song { ID = "abcdef", Title = "A song", Artist = "Someone" };
-                data = new List<Song>
-                {
-                    song,
-                    song2,
-                    song3,
-                }.AsQueryable();
-
-                mockSet = new Mock<DbSet<Song>>();
-                mockSet.As<IQueryable<Song>>().SetupGet(m => m.Provider).Returns(data.Provider);
-                mockSet.As<IQueryable<Song>>().SetupGet(m => m.Expression).Returns(data.Expression);
-                mockSet.As<IQueryable<Song>>().SetupGet(m => m.ElementType).Returns(data.ElementType);
-                mockSet.As<IQueryable<Song>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
-
-                mockContext = new Mock<DatabaseContext>();
-                mockContext.Object.songs = mockSet.Object;
-
-                songService = new SongService(mockContext.Object);
-            }
-
-            [Fact]
-            public void TestValidArgument()
-            {
-                Assert.Throws<ArgumentException>(() => songService.FindSongByTitle(null));
-                Assert.Throws<ArgumentException>(() => songService.FindSongByTitle(""));
-            }
-
-            [Fact]
-            public void TestNotFound()
-            {
-                var songs = songService.FindSongByTitle("never");
-                Assert.Empty(songs);
-            }
-
-            [Fact]
-            public void TestFound()
-            {
-                var songs = songService.FindSongByTitle("Something");
-                Assert.Contains<Song>(song, songs);
-                Assert.Contains<Song>(song2, songs);
-                Assert.DoesNotContain<Song>(song3, songs);
-            }
+            fixture.MockSet.Verify(m => m.Add(fixture.Song), Times.Never);
+            fixture.MockContext.Verify(m => m.SaveChanges(), Times.Never);
         }
 
+        [Fact]
+        public void TestAddDuplicateTitleAndArtist()
+        {
+            var searchSong = new Song { ID = "qwert1", Title = "something", Artist = "someone" };
+
+            songService.Add(searchSong);
+
+            fixture.MockSet.Verify(m => m.Add(searchSong), Times.Once);
+            fixture.MockContext.Verify(m => m.SaveChanges(), Times.Once);
+        }
+
+        [Fact]
+        public void TestAddNull()
+        {
+            Assert.Throws<ArgumentException>(() => songService.Add(null));
+
+            fixture.MockContext.Verify(m => m.Add(null), Times.Never);
+            fixture.MockContext.Verify(m => m.SaveChanges(), Times.Never);
+        }
+
+        [Fact]
+        public void TestAddSongEmtpyTitle()
+        {
+            var newSong = new Song { ID = "1234", Title = null, Artist = "Someone" };
+            Assert.Throws<ArgumentException>(() => songService.Add(newSong));
+            fixture.MockSet.Verify(m => m.Add(null), Times.Never);
+            fixture.MockContext.Verify(m => m.SaveChanges(), Times.Never);
+
+            newSong.Title = "";
+            Assert.Throws<ArgumentException>(() => songService.Add(newSong));
+            fixture.MockSet.Verify(m => m.Add(null), Times.Never);
+            fixture.MockContext.Verify(m => m.SaveChanges(), Times.Never);
+
+        }
+
+        [Fact]
+        public void TestAddSongEmptyID()
+        {
+            var newSong = new Song { ID = null, Title = "Something", Artist = "Someone" };
+            Assert.Throws<ArgumentException>(() => songService.Add(newSong));
+            fixture.MockSet.Verify(m => m.Add(null), Times.Never);
+            fixture.MockContext.Verify(m => m.SaveChanges(), Times.Never);
+
+            newSong.ID = "";
+            Assert.Throws<ArgumentException>(() => songService.Add(newSong));
+            fixture.MockSet.Verify(m => m.Add(null), Times.Never);
+            fixture.MockContext.Verify(m => m.SaveChanges(), Times.Never);
+        }
+
+        [Fact]
+        public void TestExistsValidArgument()
+        {
+            string newSongID = null;
+            Assert.Throws<ArgumentException>(() => songService.Exists(newSongID));
+
+            newSongID = "";
+            Assert.Throws<ArgumentException>(() => songService.Exists(newSongID));
+        }
+
+        [Fact]
+        public void TestExistsFinds()
+        {
+            Assert.True(songService.Exists(fixture.Song.ID));
+        }
+
+        [Fact]
+        public void TestExistsNotFind()
+        {
+            var newSongID = "what";
+            Assert.False(songService.Exists(newSongID));
+        }
+
+
+        [Fact]
+        public void TestSongFindByIDValidArgument()
+        {
+            Assert.Throws<ArgumentException>(() => songService.FindSongByID(null));
+            Assert.Throws<ArgumentException>(() => songService.FindSongByID(""));
+        }
+
+        [Fact]
+        public void TestFindSongByIDNotFound()
+        {
+            var foundSong = songService.FindSongByID("8452wg");
+            Assert.Null(foundSong);
+        }
+
+        [Fact]
+        public void TestFindSongByIDFound()
+        {
+            var foundSong = songService.FindSongByID(fixture.Song.ID);
+            Assert.Equal(fixture.Song, foundSong);
+        }
+
+        [Fact]
+        public void TestfindSongByTitleValidArgument()
+        {
+            Assert.Throws<ArgumentException>(() => songService.FindSongByTitle(null));
+            Assert.Throws<ArgumentException>(() => songService.FindSongByTitle(""));
+        }
+
+        [Fact]
+        public void TestFindSongByTitleNotFound()
+        {
+            var songs = songService.FindSongByTitle("never");
+            Assert.Empty(songs);
+        }
+
+        [Fact]
+        public void TestFindSongByTitleFound()
+        {
+            var songs = songService.FindSongByTitle("Something");
+            Assert.Contains<Song>(fixture.Song, songs);
+            Assert.Contains<Song>(fixture.Song2, songs);
+            Assert.DoesNotContain<Song>(fixture.Song3, songs);
+        }
         // TODO: Add tests for GetStreamURL
 
         // TODO: Add tests for CreateNewSong
