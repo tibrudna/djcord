@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using VideoLibrary;
 using System;
 using tibrudna.djcort.src.Exceptions;
+using System.Collections.Generic;
 
 namespace tibrudna.djcort.src.Services
 {
@@ -54,7 +55,24 @@ namespace tibrudna.djcort.src.Services
             return database.songs.Any<Song>(s => s.ID.Equals(id));
         }
 
+        /// <summary>Look for a song with the given id.</summary>
+        /// <param name="id">The id of the song to look for.</param>
+        /// <returns>The song found or null if no song with the given id was found.</returns>
+        /// <exception cref="System.ArgumentException">Thrown, when the id is null or empty.</exception>
+        public Song FindSongByID(string id)
+        {
+            if (id == null || id.Equals("")) throw new ArgumentException("id");
 
+            return database.songs.SingleOrDefault<Song>(s => s.ID.Equals(id));
+        }
+
+        public List<Song> FindSongByTitle(string title)
+        {
+            if (title == null || title.Equals("")) throw new ArgumentException(title);
+            return Queryable
+                    .Where<Song>(database.songs, s => s.Title.Contains(title))
+                    .ToList<Song>();
+        }
 
         /// <summary>Gets the stream url for a video.</summary>
         /// <param name="song">The song for which the stream url should be received.</param>

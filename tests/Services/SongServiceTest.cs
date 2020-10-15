@@ -153,6 +153,115 @@ namespace tibrudna.djcort.tests.Services
             }
         }
 
+        public class FindByIDTest
+        {
+            private Song song;
+            private IQueryable<Song> data;
+            private Mock<DbSet<Song>> mockSet;
+            private Mock<DatabaseContext> mockContext;
+            private SongService songService;
+
+            public FindByIDTest()
+            {
+                song = new Song { ID = "1234w", Title = "Something", Artist = "Someone" };
+                data = new List<Song>
+                {
+                    song,
+                }.AsQueryable();
+
+                mockSet = new Mock<DbSet<Song>>();
+                mockSet.As<IQueryable<Song>>().SetupGet(m => m.Provider).Returns(data.Provider);
+                mockSet.As<IQueryable<Song>>().SetupGet(m => m.Expression).Returns(data.Expression);
+                mockSet.As<IQueryable<Song>>().SetupGet(m => m.ElementType).Returns(data.ElementType);
+                mockSet.As<IQueryable<Song>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
+
+                mockContext = new Mock<DatabaseContext>();
+                mockContext.Object.songs = mockSet.Object;
+
+                songService = new SongService(mockContext.Object);
+            }
+            
+            [Fact]
+            public void TestValidArgument()
+            {
+                Assert.Throws<ArgumentException>(() => songService.FindSongByID(null));
+                Assert.Throws<ArgumentException>(() => songService.FindSongByID(""));
+            }
+
+            [Fact]
+            public void TestNotFound()
+            {
+                var foundSong = songService.FindSongByID("8452wg");
+                Assert.Null(foundSong);
+            }
+
+            [Fact]
+            public void TestFound()
+            {
+                var foundSong = songService.FindSongByID(song.ID);
+                Assert.Equal(song, foundSong);
+            }
+
+        }
+        
+        public class FindSongByName 
+        {
+            private Song song;
+            private Song song2;
+            private Song song3;
+            private IQueryable<Song> data;
+            private Mock<DbSet<Song>> mockSet;
+            private Mock<DatabaseContext> mockContext;
+            private SongService songService;
+
+            public FindSongByName()
+            {
+                song = new Song { ID = "1234w", Title = "Something", Artist = "Someone" };
+                song2 = new Song {ID = "7345gt", Title = "Something", Artist = "Someone" };
+                song3 = new Song { ID = "abcdef", Title = "A song", Artist = "Someone" };
+                data = new List<Song>
+                {
+                    song,
+                    song2,
+                    song3,
+                }.AsQueryable();
+
+                mockSet = new Mock<DbSet<Song>>();
+                mockSet.As<IQueryable<Song>>().SetupGet(m => m.Provider).Returns(data.Provider);
+                mockSet.As<IQueryable<Song>>().SetupGet(m => m.Expression).Returns(data.Expression);
+                mockSet.As<IQueryable<Song>>().SetupGet(m => m.ElementType).Returns(data.ElementType);
+                mockSet.As<IQueryable<Song>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
+
+                mockContext = new Mock<DatabaseContext>();
+                mockContext.Object.songs = mockSet.Object;
+
+                songService = new SongService(mockContext.Object);
+            }
+
+            [Fact]
+            public void TestValidArgument()
+            {
+                Assert.Throws<ArgumentException>(() => songService.FindSongByTitle(null));
+                Assert.Throws<ArgumentException>(() => songService.FindSongByTitle(""));
+            }
+
+            [Fact]
+            public void TestNotFound()
+            {
+                var songs = songService.FindSongByTitle("never");
+                Assert.Empty(songs);
+            }
+
+            [Fact]
+            public void TestFound()
+            {
+                var songs = songService.FindSongByTitle("Something");
+                Assert.Contains<Song>(song, songs);
+                Assert.Contains<Song>(song2, songs);
+                Assert.DoesNotContain<Song>(song3, songs);
+            }
+        }
+
         // TODO: Add tests for GetStreamURL
 
         // TODO: Add tests for CreateNewSong
