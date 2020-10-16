@@ -31,18 +31,16 @@ namespace tibrudna.djcort.src.Services
         /// <exception cref="tibrudna.djcort.src.Exceptions.DuplicateSongException">Thrown, when the song already exists in the database</exception>
         public void Add(Song song)
         {
-            if (!ValidateSong(song)) throw new ArgumentException("song");
-            if (Exists(song.ID)) throw new DuplicateSongException("song already exists");
             database.songs.Add(song);
             database.SaveChanges();
         }
 
-        private bool ValidateSong(Song song)
+        /// <summary>Removes a song from the database.</summary>
+        /// <param name="song">The song to remove from the database.</param>
+        public void RemoveSong(Song song)
         {
-            if (song == null) return false;
-            if (song.Title == null || song.ID == null) return false;
-            if (song.Title.Equals("") || song.ID.Equals("")) return false;
-            return true;
+            database.songs.Remove(song);
+            database.SaveChanges();
         }
 
         /// <summary>Checks if a song is already in the database.</summary>
@@ -51,7 +49,6 @@ namespace tibrudna.djcort.src.Services
         /// <exception cref="System.ArgumentException">Thrown, when the song is not valid</exception>
         public bool Exists(string id)
         {
-            if (id == null || id.Equals("")) throw new ArgumentException("id");
             return database.songs.Any<Song>(s => s.ID.Equals(id));
         }
 
@@ -61,8 +58,6 @@ namespace tibrudna.djcort.src.Services
         /// <exception cref="System.ArgumentException">Thrown, when the id is null or empty.</exception>
         public Song FindSongByID(string id)
         {
-            if (id == null || id.Equals("")) throw new ArgumentException("id");
-
             return database.songs.SingleOrDefault<Song>(s => s.ID.Equals(id));
         }
 
@@ -72,12 +67,13 @@ namespace tibrudna.djcort.src.Services
         /// <exception cref="System.ArgumentException">Thrown, when the title is null or empty.</exception>
         public List<Song> FindSongByTitle(string title)
         {
-            if (title == null || title.Equals("")) throw new ArgumentException(title);
             return Queryable
                     .Where<Song>(database.songs, s => s.Title.Contains(title))
                     .ToList<Song>();
         }
 
+        /// <summary>Get all songs in the database.</summary>
+        /// <returns>A list of all songs in the database.</returns>
         public List<Song> GetAll()
         {
             return database.songs.ToList();
@@ -119,11 +115,14 @@ namespace tibrudna.djcort.src.Services
             return song;
         }
 
-        private string ParseID(string url)
+        /// <summary>Cuts the id out from the url.</summary>
+        /// <param>The url which contains the id.</param>
+        /// <returns>The id which was in the url.</returns>
+        public string ParseID(string url)
         {
             var pattern = "v=[\\w-]*";
             var match = Regex.Match(url, pattern);
-            return match.Value.Remove(0,2);
+            return match.Value.Remove(0, 2);
         }
 
     }

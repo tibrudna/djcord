@@ -14,6 +14,7 @@ using System;
 
 namespace tibrudna.djcort.src.Services
 {
+    /// <summary>Controlls the music player</summary>
     public class PlayerService
     {
         private readonly PlaylistService playlist;
@@ -23,6 +24,9 @@ namespace tibrudna.djcort.src.Services
         private bool nextSong;
         private Task playStatus;
 
+        /// <summary>Creates a new instance of the PlayerService class.</summary>
+        /// <param name="playlist">Service which controlls the playlist.</param>
+        /// <param name="songService">Service which operates with songs.</param>
         public PlayerService(PlaylistService playlist, SongService songService)
         {
             this.playlist = playlist;
@@ -31,6 +35,8 @@ namespace tibrudna.djcort.src.Services
             playStatus = Task.CompletedTask;
         }
 
+        /// <summary>Joins a users voice channel.</summary>
+        /// <param name="user">The user the music player should connect to.</param>
         public async Task JoinChannel(SocketUser user)
         {
             var channel = (user as IGuildUser)?.VoiceChannel;
@@ -39,11 +45,13 @@ namespace tibrudna.djcort.src.Services
             audioClient = await channel.ConnectAsync();
         }
 
+        /// <summary>Skip the current song.</summary>
         public void NextSong()
         {
             nextSong = true;
         }
 
+        /// <summary>Starts the player.</summary>
         public void Start()
         {
             playStatus = StartPlaying();
@@ -88,6 +96,8 @@ namespace tibrudna.djcort.src.Services
             });
         }
 
+        /// <summary>Informations about the current song as an embed.</summary>
+        /// <returns>An Embed containing the Information about the song.</returns>
         public Embed NowPlaying()
         {
             var builder = new EmbedBuilder();
