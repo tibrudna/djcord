@@ -12,7 +12,7 @@ namespace tibrudna.djcort.tests.Services
         public Song Song { get; }
         public Song Song2 { get; }
         public Song Song3 { get; }
-        public IQueryable<Song> Data { get; }
+        public List<Song> Data { get; }
         public Mock<DbSet<Song>> MockSet {get; }
         public Mock<DatabaseContext> MockContext { get; }
 
@@ -27,15 +27,16 @@ namespace tibrudna.djcort.tests.Services
                 Song,
                 Song2,
                 Song3,
-            }.AsQueryable<Song>();
+            };
 
             MockSet = new Mock<DbSet<Song>>();
-            MockSet.As<IQueryable<Song>>().SetupGet(m => m.Provider).Returns(Data.Provider);
-            MockSet.As<IQueryable<Song>>().SetupGet(m => m.Expression).Returns(Data.Expression);
-            MockSet.As<IQueryable<Song>>().SetupGet(m => m.ElementType).Returns(Data.ElementType);
+            MockSet.As<IQueryable<Song>>().SetupGet(m => m.Provider).Returns(Data.AsQueryable<Song>().Provider);
+            MockSet.As<IQueryable<Song>>().SetupGet(m => m.Expression).Returns(Data.AsQueryable<Song>().Expression);
+            MockSet.As<IQueryable<Song>>().SetupGet(m => m.ElementType).Returns(Data.AsQueryable<Song>().ElementType);
             MockSet.As<IQueryable<Song>>().Setup(m => m.GetEnumerator()).Returns(Data.GetEnumerator());
 
             MockContext = new Mock<DatabaseContext>();
+            MockContext.Setup(m => m.SaveChanges()).Returns(1);
             MockContext.Object.songs = MockSet.Object;
         }
     }

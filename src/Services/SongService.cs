@@ -31,6 +31,9 @@ namespace tibrudna.djcort.src.Services
         /// <exception cref="tibrudna.djcort.src.Exceptions.DuplicateSongException">Thrown, when the song already exists in the database</exception>
         public void Add(Song song)
         {
+            if (song == null) throw new ArgumentException("song");
+            if (Exists(song.ID)) throw new DuplicateSongException();
+
             database.songs.Add(song);
             database.SaveChanges();
         }
@@ -39,6 +42,9 @@ namespace tibrudna.djcort.src.Services
         /// <param name="song">The song to remove from the database.</param>
         public void RemoveSong(Song song)
         {
+            if (song == null) throw new ArgumentException("song");
+            if (!Exists(song.ID)) throw new SongNotInDatabaseException();
+
             database.songs.Remove(song);
             database.SaveChanges();
         }
@@ -49,6 +55,7 @@ namespace tibrudna.djcort.src.Services
         /// <exception cref="System.ArgumentException">Thrown, when the song is not valid</exception>
         public bool Exists(string id)
         {
+            if (id == null || id.Equals("")) throw new ArgumentException("id");
             return database.songs.Any<Song>(s => s.ID.Equals(id));
         }
 
@@ -58,6 +65,7 @@ namespace tibrudna.djcort.src.Services
         /// <exception cref="System.ArgumentException">Thrown, when the id is null or empty.</exception>
         public Song FindSongByID(string id)
         {
+            if (id == null || id.Equals("")) throw new ArgumentException("id");
             return database.songs.SingleOrDefault<Song>(s => s.ID.Equals(id));
         }
 
@@ -67,8 +75,10 @@ namespace tibrudna.djcort.src.Services
         /// <exception cref="System.ArgumentException">Thrown, when the title is null or empty.</exception>
         public List<Song> FindSongByTitle(string title)
         {
+            if (title == null || title.Equals("")) throw new ArgumentException("title");
+            title = title.ToLower();
             return Queryable
-                    .Where<Song>(database.songs, s => s.Title.Contains(title))
+                    .Where<Song>(database.songs, s => s.Title.ToLower().Contains(title) || s.Artist.ToLower().Contains(title))
                     .ToList<Song>();
         }
 
