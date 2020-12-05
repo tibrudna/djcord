@@ -1,19 +1,22 @@
 version: "3.8"
 services:
-  database:
-    image: "postgres:latest"
-    env_file: .env
-    volumes:
-      - database-volume:/var/lib/postgresql/data
+  # database:
+  #   image: "postgres:latest"
+  #   env_file: .env
+  #   volumes:
+      # - database-volume:/var/lib/postgresql/data
 
-  djcord:
-    depends_on: [ database ]
-    build: .
+  djcort:
+    # depends_on: [ database ]
+    build:
+      context: .
+      args:
+        - user=tibrudna
     stdin_open: true
     tty: true
     env_file: .env
     volumes:
-        - ../:/root/djcord
+        - ../:/home/tibrudna/djcort
 
-volumes:
-  database-volume:
+# volumes:
+  # database-volume:

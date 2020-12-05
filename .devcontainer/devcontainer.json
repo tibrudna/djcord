@@ -1,8 +1,8 @@
 {
-    "name": "Djcord",
+    "name": "djcort",
     "dockerComposeFile": "docker-compose.yml",
-    "service": "djcord",
-    "workspaceFolder": "/root/djcord",
+    "service": "djcort",
+    "workspaceFolder": "/home/tibrudna/djcort",
     "extensions": [
         "ms-dotnettools.csharp"
     ]

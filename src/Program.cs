@@ -6,10 +6,11 @@ using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
-using tibrudna.djcort.src.Dao;
-using tibrudna.djcort.src.Handlers;
-using tibrudna.djcort.src.Modules;
-using tibrudna.djcort.src.Services;
+using Discord.Audio;
+using System.Diagnostics;
+using VideoLibrary;
+using tibrudna.djcort.src.Audio;
+using tibrudna.djcort.src.Commands;
 
 namespace tibrudna.djcort.src
 {
@@ -18,23 +19,25 @@ namespace tibrudna.djcort.src
         static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
 
         private DiscordSocketClient client;
-        private CommandHandler handler;
-        private CommandService commands;
+        private CommandService commandService;
+        private CommandHandler commandHandler;
         private IServiceProvider provider;
+        private AudioManager audioManager;
 
         public async Task MainAsync()
         {
-            Console.CancelKeyPress += new ConsoleCancelEventHandler(beforeExit);
-            AppDomain.CurrentDomain.ProcessExit += (sender, args) => this.beforeExit(sender, args);
+            Console.CancelKeyPress += beforeExit;
+            AppDomain.CurrentDomain.ProcessExit += beforeExit;
+
+            audioManager = new AudioManager();
 
             provider = BuildServiceProvider();
+
             client = provider.GetService<DiscordSocketClient>();
-            commands = provider.GetService<CommandService>();
-            handler =  provider.GetService<CommandHandler>();
-
-            await handler.InstallCommandAsync();
-
             client.Log += Log;
+
+            commandHandler = provider.GetService<CommandHandler>();
+            await commandHandler.InstallCommandAsync();
 
             await client.LoginAsync(TokenType.Bot, Environment.GetEnvironmentVariable("TOKEN"));
             await client.StartAsync();
@@ -56,12 +59,9 @@ namespace tibrudna.djcort.src
 
         public IServiceProvider BuildServiceProvider() => new ServiceCollection()
                 .AddSingleton<DiscordSocketClient>()
+                .AddSingleton<AudioManager>()
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandler>()
-                .AddSingleton<PlayerService>()
-                .AddSingleton<SongService>()
-                .AddSingleton<PlaylistService>()
-                .AddDbContext<DatabaseContext>()
                 .BuildServiceProvider();
     }
 }

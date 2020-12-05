@@ -7,13 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Discord.Net" Version="2.2.0" />
-    <PackageReference Include="Discord.Net.Commands" Version="2.2.0" />
+    <PackageReference Include="Discord.Net" Version="2.3.0-dev-20201201.2" />
+    <PackageReference Include="Discord.Net.Commands" Version="2.3.0-dev-20201201.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" Version="5.0.0-rc.1.20451.13" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0-rc.1.20451.14" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0-rc.1.20451.14" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.0-rc1" />
-    <PackageReference Include="VideoLibrary" Version="3.0.6" />
+    <PackageReference Include="VideoLibrary" Version="3.0.8" />
   </ItemGroup>
 
 </Project>
