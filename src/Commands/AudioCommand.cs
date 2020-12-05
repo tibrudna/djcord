@@ -8,18 +8,21 @@ using tibrudna.djcort.src.Audio;
 
 namespace tibrudna.djcort.src.Commands
 {
+    ///<summary>This class is responsible for handling commands, regarding the audio.</summary>
     public class AudioCommand : ModuleBase<SocketCommandContext>
     {
         private readonly AudioManager audioManager;
 
+        ///<summary>Creates a new instance of the AudioCommand.</summary>
+        ///<param name="audioManager">The AudioManager reponsible for managing the audio.</param>
+        ///<returns>A new instance of the AudioCommand.</returns>
         public AudioCommand(AudioManager audioManager)
         {
             this.audioManager = audioManager;
         }
 
-        [Command("echo")]
-        public Task SayAsync([Remainder] string echo) => ReplyAsync(echo);
-
+        ///<summary>Command to join a voice channel.</summary>
+        ///<returns>A task, representing the action of joining the user voice channel.</returns>
         [Command("join", RunMode = RunMode.Async)]
         public async Task JoinVoiceChannel()
         {
@@ -31,6 +34,8 @@ namespace tibrudna.djcort.src.Commands
             await audioManager.CreateNewAudioPlayer(channel);
         }
 
+        ///<summary>Command for adding a song to the playlist.</summary>
+        ///<returns>A task, representing the action of adding a song.</returns>
         [Command("add")]
         public async Task AddMusic(string url)
         {
@@ -46,12 +51,16 @@ namespace tibrudna.djcort.src.Commands
             }
         }
 
+        ///<summary>Command for starting the audioplayer.</summary>
+        ///<returns>A task, representing the action of starting the audioplayer.</returns>
         [Command("play", RunMode = RunMode.Async)]
         public async Task PlayMusic()
         {
             await audioManager.AudioPlayer.Start();
         }
 
+        ///<summary>Command for skipping the song.</summary>
+        ///<returns>A task, representing the action of skipping the song.</returns>
         [Command("next")]
         public async Task NextSong()
         {

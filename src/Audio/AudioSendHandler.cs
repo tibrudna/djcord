@@ -1,12 +1,11 @@
-using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord.Audio;
-using VideoLibrary;
 
 namespace tibrudna.djcort.src.Audio
 {
+    /// <summary>This class is responsible for sending audio over a channel.</summary>
     public class AudioSendHandler
     {
         /// <summary> Represents a task, that sends audio through a channel.</summary>

@@ -12,6 +12,7 @@ namespace tibrudna.djcort.src.Audio
     /// </summary>
     public class AudioManager
     {
+        ///<summary>The audioplayer responsible for playing music in the guild.</summary>
         public AudioPlayer AudioPlayer { get; private set; }
 
         /// <summary>
@@ -35,6 +36,10 @@ namespace tibrudna.djcort.src.Audio
             var ytdl = YouTube.Default;
             var video = await ytdl.GetVideoAsync(url);
             return video;
+        }
+
+        private void onAudioPlayerDisconnect()
+        {
         }
     }
 }
