@@ -66,5 +66,22 @@ namespace tibrudna.djcort.src.Commands
         {
             await audioManager.AudioPlayer.Next();
         }
+
+        ///<summary>Command for removing all songs from the playlist.</summary>
+        ///<returns>A task, representing the action of emptying the playlist.</returns>
+        [Command("clear")]
+        public async Task ClearPlaylist()
+        {
+            audioManager.AudioPlayer.ClearPlaylist();
+            await ReplyAsync("All songs were removed from the playlist.");
+        }
+
+        ///<summary>Stops the player from playing music.</summary>
+        ///<returns>A task, representing the action of stopping the player.</returns>
+        [Command("stop")]
+        public async Task StopPlayer()
+        {
+            await audioManager.AudioPlayer.Stop();
+        }
     }
 }

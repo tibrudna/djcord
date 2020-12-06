@@ -14,7 +14,8 @@ namespace tibrudna.djcort.src.Audio
     {
         private Queue<Video> trackScheduler;
         private IAudioClient audioClient;
-        private CancellationTokenSource tokenSource;
+        private CancellationTokenSource songTokenSource;
+        private CancellationTokenSource playerTokenSource;
 
         ///<summary>Creates a new instance of an Audioplayer.</summary>
         ///<param name="audioClient">Is the client, that holds the connection to a channel.</param>
@@ -31,38 +32,55 @@ namespace tibrudna.djcort.src.Audio
         /// <returns>A task representing the action of playing music.</returns>
         public async Task Start()
         {
+            playerTokenSource = new CancellationTokenSource();
+            var playerToken = playerTokenSource.Token;
+
             while (trackScheduler.Count > 0)
             {
+                if (playerToken.IsCancellationRequested) {
+                    break;
+                }
+
                 var nextTrack = trackScheduler.Dequeue();
                 var audioSendHandler = new AudioSendHandler();
 
-                tokenSource = new CancellationTokenSource();
-                var token = tokenSource.Token;
+                songTokenSource = new CancellationTokenSource();
+                var token = songTokenSource.Token;
                 Debug.WriteLine(nextTrack.Uri);
 
                 await audioSendHandler.SendAsync(audioClient, nextTrack.Uri, token);
-                tokenSource.Dispose();
+                songTokenSource.Dispose();
             }
+
+            playerTokenSource.Dispose();
         }
 
         ///<summary>Skip the currently playing song.</summary>
         ///<returns>A task, representing the action of skipping a song.</returns>
         public Task Next()
         {
-            tokenSource.Cancel();
+            if (songTokenSource == null) return Task.CompletedTask;
+
+            songTokenSource.Cancel();
             return Task.CompletedTask;
         }
 
         ///<summary>Stops the player from playing songs.</summary>
-        public void Stop()
+        ///<returns>A task, representing the action of stopping the player.</returns>
+        public Task Stop()
         {
+            if (playerTokenSource == null) return Task.CompletedTask;
 
+            playerTokenSource.Cancel();
+            this.Next();
+
+            return Task.CompletedTask;
         }
 
         ///<summary>Remove all songs from the playlist.</summary>
-        public void Flush()
+        public void ClearPlaylist()
         {
-
+            trackScheduler.Clear();
         }
 
         ///<summary>Adds a new Song to the playlist.</summary>
