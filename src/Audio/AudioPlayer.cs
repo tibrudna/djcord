@@ -17,6 +17,10 @@ namespace tibrudna.djcort.src.Audio
         private CancellationTokenSource songTokenSource;
         private CancellationTokenSource playerTokenSource;
 
+        public Video currentSong { get; private set; }
+
+        public int PlaylistCount => trackScheduler.Count;
+
         ///<summary>Creates a new instance of an Audioplayer.</summary>
         ///<param name="audioClient">Is the client, that holds the connection to a channel.</param>
         ///<returns>A new Instance of AudioPlayer.</returns>
@@ -41,14 +45,14 @@ namespace tibrudna.djcort.src.Audio
                     break;
                 }
 
-                var nextTrack = trackScheduler.Dequeue();
+                currentSong = trackScheduler.Dequeue();
                 var audioSendHandler = new AudioSendHandler();
 
                 songTokenSource = new CancellationTokenSource();
                 var token = songTokenSource.Token;
-                Debug.WriteLine(nextTrack.Uri);
+                Debug.WriteLine(currentSong.Uri);
 
-                await audioSendHandler.SendAsync(audioClient, nextTrack.Uri, token);
+                await audioSendHandler.SendAsync(audioClient, currentSong.Uri, token);
                 songTokenSource.Dispose();
             }
 

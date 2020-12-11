@@ -83,5 +83,22 @@ namespace tibrudna.djcort.src.Commands
         {
             await audioManager.AudioPlayer.Stop();
         }
+
+        [Command("info")]
+        public async Task GetInfo()
+        {
+            var currentSong = audioManager.AudioPlayer.currentSong;
+
+            var field = new EmbedFieldBuilder()
+                                .WithName("Remaining songs in playlist:")
+                                .WithValue(audioManager.AudioPlayer.PlaylistCount);
+
+            var embed = new EmbedBuilder()
+                                .WithTitle(currentSong.Title)
+                                .AddField(field)
+                                .Build();
+
+            await ReplyAsync(embed: embed);
+        }
     }
 }
