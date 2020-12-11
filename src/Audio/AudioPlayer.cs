@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Audio;
+using tibrudna.djcort.src.Models;
 using VideoLibrary;
 
 namespace tibrudna.djcort.src.Audio
@@ -12,13 +13,15 @@ namespace tibrudna.djcort.src.Audio
     /// <summary>This class is responsible for playing songs.</summary>
     public class AudioPlayer
     {
-        private Queue<Video> trackScheduler;
+        private Queue<Song> trackScheduler;
         private IAudioClient audioClient;
         private CancellationTokenSource songTokenSource;
         private CancellationTokenSource playerTokenSource;
 
-        public Video currentSong { get; private set; }
+        ///<summary>The currently playing song.</summary>
+        public Song currentSong { get; private set; }
 
+        ///<summary>The count of songs in the playlist.</summary>
         public int PlaylistCount => trackScheduler.Count;
 
         ///<summary>Creates a new instance of an Audioplayer.</summary>
@@ -28,7 +31,7 @@ namespace tibrudna.djcort.src.Audio
         {
             this.audioClient = audioClient;
 
-            trackScheduler = new Queue<Video>();
+            trackScheduler = new Queue<Song>();
 
         }
 
@@ -50,9 +53,9 @@ namespace tibrudna.djcort.src.Audio
 
                 songTokenSource = new CancellationTokenSource();
                 var token = songTokenSource.Token;
-                Debug.WriteLine(currentSong.Uri);
+                Debug.WriteLine(currentSong.StreamUri);
 
-                await audioSendHandler.SendAsync(audioClient, currentSong.Uri, token);
+                await audioSendHandler.SendAsync(audioClient, currentSong.StreamUri, token);
                 songTokenSource.Dispose();
             }
 
@@ -89,7 +92,7 @@ namespace tibrudna.djcort.src.Audio
 
         ///<summary>Adds a new Song to the playlist.</summary>
         ///<param name="song">The songs, that is added to the playlist.</param>
-        public void Enqueue(Video song)
+        public void Enqueue(Song song)
         {
             trackScheduler.Enqueue(song);
         }

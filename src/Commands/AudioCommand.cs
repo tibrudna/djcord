@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
@@ -84,6 +85,8 @@ namespace tibrudna.djcort.src.Commands
             await audioManager.AudioPlayer.Stop();
         }
 
+        ///<summary>Sends information about the currently playing song and the count of songs in the playlist.</summary>
+        ///<returns>A task, representing the action of sending the information.</returns>
         [Command("info")]
         public async Task GetInfo()
         {
@@ -95,6 +98,8 @@ namespace tibrudna.djcort.src.Commands
 
             var embed = new EmbedBuilder()
                                 .WithTitle(currentSong.Title)
+                                .WithUrl(audioManager.AudioPlayer.currentSong.Url)
+                                .WithThumbnailUrl(audioManager.AudioPlayer.currentSong.ThumbnailUrl)
                                 .AddField(field)
                                 .Build();
 

@@ -19,7 +19,6 @@ namespace tibrudna.djcort.src
         static void Main(string[] args) => new Program().MainAsync().GetAwaiter().GetResult();
 
         private DiscordSocketClient client;
-        private CommandService commandService;
         private CommandHandler commandHandler;
         private IServiceProvider provider;
         private AudioManager audioManager;
