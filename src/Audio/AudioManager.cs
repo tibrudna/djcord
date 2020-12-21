@@ -36,9 +36,11 @@ namespace tibrudna.djcort.src.Audio
         {
             var videoTask = LoadVideoAsync(url);
             var idTask = GetIdFromUrlAsync(url);
-            await Task.WhenAll(videoTask, idTask);
 
-            return new Song(await videoTask, await idTask);
+            var video = await videoTask;
+            var id = await idTask;
+
+            return new Song(id, video.Title, video.Uri);
         }
 
         private async Task<Video> LoadVideoAsync(string url)

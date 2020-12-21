@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -6,6 +7,7 @@ using Discord;
 using Discord.Audio;
 using Discord.Commands;
 using tibrudna.djcort.src.Audio;
+using tibrudna.djcort.src.Database;
 
 namespace tibrudna.djcort.src.Commands
 {

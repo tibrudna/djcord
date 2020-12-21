@@ -26,6 +26,7 @@ namespace tibrudna.djcort.src.Commands
         {
             client.MessageReceived += HandleCommandAsync;
             await commandService.AddModuleAsync<AudioCommand>(services);
+            await commandService.AddModuleAsync<DatabaseCommand>(services);
         }
 
         private async Task HandleCommandAsync(SocketMessage messageParam)

@@ -11,6 +11,7 @@ using System.Diagnostics;
 using VideoLibrary;
 using tibrudna.djcort.src.Audio;
 using tibrudna.djcort.src.Commands;
+using tibrudna.djcort.src.Database;
 
 namespace tibrudna.djcort.src
 {
@@ -58,6 +59,7 @@ namespace tibrudna.djcort.src
 
         public IServiceProvider BuildServiceProvider() => new ServiceCollection()
                 .AddSingleton<DiscordSocketClient>()
+                .AddDbContext<DatabaseContext>()
                 .AddSingleton<AudioManager>()
                 .AddSingleton<CommandService>()
                 .AddSingleton<CommandHandler>()
