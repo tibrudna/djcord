@@ -1,12 +1,15 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1-focal
+# See here for image contents: https://github.com/microsoft/vscode-dev-containers/tree/v0.155.1/containers/typescript-node/.devcontainer/base.Dockerfile
 
-ARG user
+# [Choice] Node.js version: 14, 12, 10
+ARG VARIANT="14-buster"
+FROM mcr.microsoft.com/vscode/devcontainers/typescript-node:0-${VARIANT}
 
-RUN ["apt", "update"]
-RUN ["apt", "install", "-y", "git"]
-RUN ["apt", "install", "-y", "ffmpeg", "libsodium23", "libsodium-dev", "libopus0", "libopus-dev"]
+# [Optional] Uncomment this section to install additional OS packages.
+RUN apt-get update
 
-RUN useradd --create-home --shell /bin/bash ${user}
+# [Optional] Uncomment if you want to install an additional version of node using nvm
+# ARG EXTRA_NODE_VERSION=10
+# RUN su node -c "source /usr/local/share/nvm/nvm.sh && nvm install ${EXTRA_NODE_VERSION}"
 
-USER ${user}
-WORKDIR /home/{user}
+# [Optional] Uncomment if you want to install more global node packages
+# RUN su node -c "npm install -g discord.js ffmpeg-static @discordjs/opus @types/node"
