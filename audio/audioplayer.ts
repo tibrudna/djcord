@@ -1,13 +1,14 @@
 import * as discord from 'discord.js'
 import * as ytdl from 'ytdl-core';
+import { LinkedList } from '../helper/LinkedList';
 
 class AudioPlayer {
-    playlist: string[];
+    playlist: LinkedList<string>;
     connection: discord.VoiceConnection;
 
     constructor(connection: discord.VoiceConnection) {
         this.connection = connection;
-        this.playlist = [];
+        this.playlist = new LinkedList<string>();
     }
 
     enqueu(song: string) {
@@ -15,15 +16,15 @@ class AudioPlayer {
     }
 
     dequeue(): string {
-        return this.playlist.shift();
+        return this.playlist.pop();
     }
 
     play() {
-        if (this.playlist.length <= 0) {
+        if (this.playlist.length() == 0) {
             return;
         }
 
-        let nextSong = this.playlist.shift();
+        let nextSong = this.playlist.pop();
         let dispatcher = this.connection.play(ytdl(nextSong));
         dispatcher.on("finish", () => {
             this.play();
