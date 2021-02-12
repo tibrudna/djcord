@@ -7,9 +7,6 @@ const client = new discord.Client();
 const service = new CommandService();
 const audioManager = new AudioManager();
 
-service.add("ping", msg => {
-    msg.channel.send("pong");
-});
 
 service.add("join", async msg => audio.join(msg, audioManager));
 service.add("add", msg => audio.add(msg, audioManager));
@@ -23,10 +20,13 @@ client.on('message', async msg => {
     if (msg.author.bot) return;
 
     if (!msg.content.startsWith("!")) return;
+    msg.content = msg.content.replace("!", "");
 
-    let content = msg.content.replace("!", "").split(" ", 1);
-    service.get(content[0])(msg);
-
+    let command = msg.content.split(" ", 1)[0];
+    let func = service.get(command);
+    
+    msg.content = msg.content.replace(command, "");
+    func(msg);
 });
 
 function exitHandler(options, exitCode) {

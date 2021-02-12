@@ -7,7 +7,7 @@ function join(msg: discord.Message, audioManager: AudioManager): void {
 }
 
 function add(msg: discord.Message, audioManager: AudioManager): void {
-    let song = msg.content.split(" ", 2)[1];
+    let song = msg.content.split(" ", 1)[0];
     let guildID = msg.guild.id;
 
     audioManager.addSong(guildID, song);
@@ -18,4 +18,4 @@ function play(msg: discord.Message, audioManager: AudioManager): void {
     audioManager.startPlayer(msg.guild.id);
 }
 
-export { join, add, play}
+export { join, add, play }
