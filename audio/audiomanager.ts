@@ -1,5 +1,6 @@
 import * as discord from 'discord.js';
 import { AudioPlayer } from './audioplayer';
+import { Logger } from '../helper/Logger';
 
 class AudioManager {
     register: Map<string, AudioPlayer>;
@@ -14,6 +15,7 @@ class AudioManager {
         let audioPlayer = new AudioPlayer(connection);
 
         this.register.set(guildID, audioPlayer);
+        Logger.info("New player was registered");
     }
 
     addSong(guildID: string, song: string) {
