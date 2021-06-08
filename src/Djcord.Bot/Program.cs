@@ -20,7 +20,7 @@ namespace Djcord.Bot
             var _client = new DiscordSocketClient();
             _client.Log += Log;
 
-            var token = "NzYwNTM3MjU4MzY4ODI3NDIy.X3NfhA.78VmuGkQZk-0aK8h3nryi77O-v0";
+            var token = Environment.GetEnvironmentVariable("TOKEN");
 
             var _commands = new CommandService();
             var _services = ConfigureService();
