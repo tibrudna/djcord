@@ -13,7 +13,7 @@ type AudioSendHandler struct {
 	Options    *dca.EncodeOptions
 }
 
-func (s *AudioSendHandler) Send(streamUrl string) {
+func (s *AudioSendHandler) Send(streamUrl string, interrupt chan bool) {
 	encodingSession, err := dca.EncodeFile(streamUrl, s.Options)
 	if err != nil {
 		log.Printf("Cannot create opus stream: %s", err)
@@ -22,12 +22,17 @@ func (s *AudioSendHandler) Send(streamUrl string) {
 
 	defer encodingSession.Cleanup()
 
-	done := make(chan error)
-	dca.NewStream(encodingSession, s.Connection, done)
-	err = <-done
+	for {
+		select {
+		case <-interrupt:
+			return
+		default:
+			buffer, err := encodingSession.OpusFrame()
+			if len(buffer) == 0 || err == io.EOF {
+				break
+			}
 
-	if err != nil && err != io.EOF {
-		log.Printf("Stream unexpectedly shut down: %s", err)
-		return
+			s.Connection.OpusSend <- buffer
+		}
 	}
 }

@@ -77,4 +77,14 @@ func installCommands() {
 		Name:     "play",
 		Executer: audio.Play,
 	})
+
+	commandService.AddCommand(&commands.Command{
+		Name:     "list",
+		Executer: audio.GetPlaylist,
+	})
+
+	commandService.AddCommand(&commands.Command{
+		Name:     "skip",
+		Executer: audio.Next,
+	})
 }

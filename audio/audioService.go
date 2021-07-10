@@ -55,6 +55,24 @@ func Join(ctx *commands.Context) {
 	log.Println("Cannot find voice channel")
 }
 
+func GetPlaylist(ctx *commands.Context) {
+	content := strings.Trim(ctx.Message.Content, "!")
+	url := strings.Split(content, " ")[1]
+
+	client := youtube.Client{}
+
+	playlist, err := client.GetPlaylist(url)
+	if err != nil {
+		log.Printf("Cannot load playlist: %s", err)
+		return
+	}
+
+	for k, v := range playlist.Videos {
+		log.Printf("%d. %s - %s", k, v.Title, v.Author)
+		scheduler = append(scheduler, v.ID)
+	}
+}
+
 func Play(ctx *commands.Context) {
 	for {
 		if len(scheduler) == 0 {
@@ -68,4 +86,8 @@ func Play(ctx *commands.Context) {
 		stream := loader.LoadSong(nextSong)
 		player.Play(stream)
 	}
+}
+
+func Next(ctx *commands.Context) {
+	player.Next()
 }
